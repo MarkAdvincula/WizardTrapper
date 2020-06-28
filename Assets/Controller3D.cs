@@ -13,16 +13,25 @@ public class Controller3D : MonoBehaviour
     public float jumpHeight = 1.0f;
     public float gravityValue = -9.81f;
     public GameObject bombs;
+    public Animator charAnim;
     // public Transform cam;
     private void Start()
     {
         controller = gameObject.AddComponent<CharacterController>();
+        controller.slopeLimit = 45f;
+        controller.stepOffset = 0.3f;
+        controller.skinWidth = 0.08f;
+        controller.minMoveDistance = 0.001f;
+        controller.center = new Vector3(0f, 1f, 0f);
+
+        charAnim = GetComponent<Animator>();
     }
 
     void Update(){
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0){
             playerVelocity.y = 0f;
+            charAnim.SetInteger("condition", 0);
         }
 
         Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -30,6 +39,7 @@ public class Controller3D : MonoBehaviour
 
         if (move != Vector3.zero){
             gameObject.transform.forward = move;
+            charAnim.SetInteger("condition", 1);
         }
 
         // Changes the height position of the player..
