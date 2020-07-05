@@ -10,13 +10,20 @@ public class Controller3D : MonoBehaviour
     private Vector3 playerVelocity;
     private bool groundedPlayer;
     public float playerSpeed = 2.0f;
-    public float jumpHeight = 1.0f;
+    public float jumpHeight = 0.1f;
     public float gravityValue = -9.81f;
     public GameObject bombs;
     public Animator charAnim;
+
+    protected JumpButton jumpbutton;
+    protected Joystick joystick;
+    protected TrapButton trapbutton;
     // public Transform cam;
     private void Start()
     {
+        joystick = FindObjectOfType<Joystick>();
+        jumpbutton = FindObjectOfType<JumpButton>();
+        trapbutton = FindObjectOfType<TrapButton>();
         controller = gameObject.AddComponent<CharacterController>();
         controller.slopeLimit = 45f;
         controller.stepOffset = 0.3f;
@@ -24,7 +31,9 @@ public class Controller3D : MonoBehaviour
         controller.minMoveDistance = 0.001f;
         controller.center = new Vector3(0f, 1f, 0f);
 
+
         charAnim = GetComponent<Animator>();
+        
     }
 
     void Update(){
@@ -34,7 +43,7 @@ public class Controller3D : MonoBehaviour
             charAnim.SetInteger("condition", 0);
         }
 
-        Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        Vector3 move = new Vector3(joystick.Horizontal * playerSpeed, 0, joystick.Vertical * playerSpeed);
         controller.Move(move * Time.deltaTime * playerSpeed);
 
         if (move != Vector3.zero){
@@ -43,14 +52,14 @@ public class Controller3D : MonoBehaviour
         }
 
         // Changes the height position of the player..
-        if (Input.GetButtonDown("Jump") && groundedPlayer){
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+        if (Input.GetButtonDown("Jump") || jumpbutton.Pressed && groundedPlayer){
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -0.4f * gravityValue);
         }
 
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
 
-        if (Input.GetButtonDown("Fire2") && bombs != null && groundedPlayer ) {
+        if (Input.GetButtonDown("Fire2") || trapbutton.Pressed && bombs != null && groundedPlayer ) {
             GameObject newBombs = Instantiate(bombs, new Vector3(transform.position.x, transform.position.y, transform.position.z),Quaternion.identity);
             newBombs.SetActive(true);
         }
